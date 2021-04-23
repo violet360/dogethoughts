@@ -4,7 +4,7 @@ session based authentication
 
 API routes:
 
-#####crud operations API routes
+######CRUD operations API routes
 | API        | method        | description | auth required |
 | ---------- |:-------------:| -----:|-------------------:|
 |  /:username  | GET | fetches the profile description of the username | false |
