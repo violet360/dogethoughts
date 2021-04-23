@@ -1,11 +1,11 @@
 const { Router } = require('express');
 const router = Router();
-const { users } = require('./models');
+const { users } = require('../models/models');
 var crypto = require('crypto');
-const { 
+const {
     v1: uuidv1,
     v4: uuidv4,
-  } = require('uuid');
+} = require('uuid');
 
 
 router.post('/login', (req, res) => {
@@ -13,7 +13,7 @@ router.post('/login', (req, res) => {
     let obj = req.body;
     const user = users.find(o => o.username === obj.username && o.password === crypto.createHash('sha256').update(obj.password).digest('hex'));
     req.session.userId = user.userId;
-    if(user) {
+    if (user) {
         console.log(user);
         req.session.userId = user.userId;
         res.sendStatus(200);

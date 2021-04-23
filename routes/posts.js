@@ -1,5 +1,5 @@
 const { Router } = require('express');
-const { posts, users } = require('./models');
+const { posts, users } = require('../models/models');
 const router = Router({ mergeParams: true }); //to get params from parent route
 const { redirectLogin } = require('../middlewares/authenticate');
 
