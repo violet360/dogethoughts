@@ -7,12 +7,10 @@ router.get('', (req, res) => {
     const { username } = req.params;
     let userObj = users.find(o => o.username === username);
     let userPosts = [];
-    console.log(userObj);
     if (userObj) {
         let finalObj = {};
         finalObj.about = userObj;
         for (let post of posts) {
-            console.log(post)
             if (post.username === username) {
                 userPosts.push(post);
             }
@@ -27,7 +25,6 @@ router.get('', (req, res) => {
 
 router.get('/posts', (req, res) => {
     const { username } = req.params;
-    console.log(req.params);
     const userPosts = [];
     if (username) {
         let obj = users.find(o => o.username === username);
@@ -45,7 +42,6 @@ router.get('/posts', (req, res) => {
 
 
 router.post('/create', redirectLogin, (req, res) => {
-    console.log(req.body);
     const { username } = req.params;
     const postTitleArray = req.body.title.split(' ');
     let len = postTitleArray.length;
@@ -69,7 +65,6 @@ router.post('/create', redirectLogin, (req, res) => {
     obj.title = postTitleProcessed;
     obj.userId = req.session.userId;
     obj.username = username;
-    console.log(titleArray, postTitleProcessed);
     posts.push(obj);
     res.status(200).send(obj);
 })
@@ -78,7 +73,6 @@ router.post('/create', redirectLogin, (req, res) => {
 router.get('/:title', (req, res) => {
     const { username, title } = req.params;
     if (title && username) {
-        console.log(title);
         const obj = posts.find(o => ((o.title === title) && (o.username === username)));
         res.status(200).json(obj);
     } else {
@@ -90,11 +84,9 @@ router.get('/:title', (req, res) => {
 router.put('/:title/update', redirectLogin, (req, res) => {
     const { userId } = req.session;
     const { username, title } = req.params;
-    console.log(title, userId);
     const userObj = users.find(o => ((o.userId === userId) && (o.username === username)))
     const postIndex = posts.findIndex(o => ((o.username === username) && (o.title === title)));
     if (userObj && postIndex >= 0) {
-        console.log(posts[postIndex]);
         let updatedPost = req.body;
         posts[postIndex].title = updatedPost.title;
         posts[postIndex].content = updatedPost.content;
@@ -111,11 +103,9 @@ router.put('/:title/update', redirectLogin, (req, res) => {
 router.delete('/:title/delete', redirectLogin, (req, res) => {
     const { userId } = req.session;
     const { username, title } = req.params;
-    console.log(title, userId);
     const userObj = users.find(o => ((o.userId === userId) && (o.username === username)))
     const postIndex = posts.findIndex(o => ((o.username === username) && (o.title === title)));
     if (userObj && postIndex >= 0) {
-        console.log(postIndex);
         posts.splice(postIndex, 1);
         res.sendStatus(200);
     } else if (userObj == undefined && postIndex >= 0) {

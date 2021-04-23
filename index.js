@@ -9,7 +9,6 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use(session);
 app.use((req, res, next) => {
-    console.log(req.session);
     console.log(`${req.method} - ${req.url}`);
     next();
 });
@@ -20,5 +19,5 @@ app.use('/:username', postRoute);
 app.use('/user', userRoute);
 
 
-app.listen(3000, () => console.log('server is running on port 8080'));
+app.listen(3000, () => console.log('server is running on port 3000'));
 

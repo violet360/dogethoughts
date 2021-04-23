@@ -1,11 +1,9 @@
 const { Router } = require('express');
 const { posts } = require('../models/models');
 const router = Router();
-// console.log(posts);
 
 
 router.use((req, res, next) => {
-    // console.log(req.session);
     console.log(`${req.method} + ${req.url}`);
     next();
 });

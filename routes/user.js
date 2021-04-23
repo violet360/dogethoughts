@@ -9,12 +9,10 @@ const {
 
 
 router.post('/login', (req, res) => {
-    console.log(req.body);
     let obj = req.body;
     const user = users.find(o => o.username === obj.username && o.password === crypto.createHash('sha256').update(obj.password).digest('hex'));
     req.session.userId = user.userId;
     if (user) {
-        console.log(user);
         req.session.userId = user.userId;
         res.sendStatus(200);
     } else {
@@ -25,11 +23,9 @@ router.post('/login', (req, res) => {
 
 
 router.post('/signup', (req, res) => {
-    console.log(req.body);
     let obj = req.body;
     obj.password = crypto.createHash('sha256').update(obj.password).digest('hex');
     obj.userId = uuidv4();
-    console.log(obj);
     res.status(200).send("login to your account");
     users.push(obj);
 })
