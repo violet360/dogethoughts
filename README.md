@@ -2,9 +2,10 @@
 CRUD operations (sequelize integration soon to come)
 session based authentication
 
-API routes:
+### API routes:
 
-######CRUD
+##### CRUD operations
+
 | API        | method        | description | auth required |
 | ---------- |:-------------:| -----:|-------------------:|
 |  /:username  | GET | fetches the profile description of the username | false |
