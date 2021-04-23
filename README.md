@@ -14,3 +14,11 @@ session based authentication
 | /:username/:title | GET     |   fetches the post with that particular title| false |
 | /:username/:title/update | PUT      |   updates the post with the title name | true |
 | /:username/:title/delete | DELETE      |   deletes a post with the title name | true |
+
+
+##### AUTH operations
+| API        | method        | description | auth required |
+| ---------- |:-------------:| -----:|-------------------:|
+|  /user/signup | POST | adds profile to the database | false |
+| /user/login   | POST     |  logs the user in and creates the session | false |
+| /user/logout | POST      |  logs the user out | true |
