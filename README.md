@@ -7,7 +7,7 @@ API routes:
 #####crud operations API routes
 | API        | method        | description | auth required |
 | ---------- |:-------------:| -----:|-------------------:|
-|  /<username>  | GET | fetches the profile description of the username | false |
+|  /:username  | GET | fetches the profile description of the username | false |
 | <username>/posts   | GET      |   fetches all the posts by the username | false |
 | /<username>/create | POST      |   creates a post | true |
 | /<username>/<title> | GET     |   fetches the post with that particular title| false |
