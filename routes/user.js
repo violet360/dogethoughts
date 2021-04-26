@@ -12,41 +12,54 @@ const users = database.users;
 const Op = database.Sequelize.Op;
 
 
-router.post('/login', (req, res) => {
+router.post('/login', async (req, res) => {
     let obj = req.body;
     obj.password = crypto.createHash('sha256').update(obj.password).digest('hex');
-    users.findOne({
-        where: { [Op.and]: [obj] } //and operator
-    })
-        .then(user => {
-            req.session.userId = user.userId;
-            res.status(200).send(user);
+
+    try {
+        const detectedUser = await users.findOne({
+            where: { [Op.and]: [obj] } //and operator
         })
-        .catch(err => {
-            res.status(500).send({
-                message:
-                    err.message || "Some error occurred while creating the Tutorial."
-            });
-        });
-})
+
+        if (detectedUser) {
+            req.session.userId = detectedUser.userId;
+            res.status(200).send(detectedUser);
+        } else {
+            res.status(404).send({
+                msg: "signin first"
+            })
+        }
+    } catch (err) {
+        res.status(500).send({
+            err,
+            msg: "some internal err"
+        })
+    }
+});
 
 
 
-router.post('/signup', (req, res) => {
+router.post('/signup', async (req, res) => {
     let obj = req.body;
     obj.password = crypto.createHash('sha256').update(obj.password).digest('hex');
     obj.userId = uuidv4();
-    const user = obj;
-    users.create(user)
-        .then(data => {
-            res.send(data);
-        })
-        .catch(err => {
+
+    try {
+        const user = obj;
+        const newUser = await users.create(user);
+        if (newUser) {
+            res.send(newUser);
+        } else {
             res.status(500).send({
-                message:
-                    err.message || "Some error occurred while creating the Tutorial."
+                msg: "signin first"
             });
-        });
+        }
+    } catch (err) {
+        res.status(500).send({
+            err,
+            msg: "some internal err"
+        })
+    }
 })
 
 router.post('/logout', (req, res) => {

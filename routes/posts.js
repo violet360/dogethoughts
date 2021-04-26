@@ -8,35 +8,38 @@ const Op = database.Sequelize.Op;
 router.get('', async (req, res) => {
     const { username } = req.params;
     let userObj = {};
-    const user = await users.findOne({ where: { username } });
-    const userPosts = await posts.findAll({ where: { username } });
-    userObj.about = user;
-    userObj.posts = userPosts;
-    res.status(200).send(userObj);
+    try {
+        const user = await users.findOne({ where: { username } });
+        const userPosts = await posts.findAll({ where: { username } });
+        userObj.about = user;
+        userObj.posts = userPosts;
+        res.status(200).send(userObj);
+    } catch (err) {
+        res.status(500).send({
+            err,
+            msg: "some internal err"
+        })
+    }
+
 })
 
 
-router.get('/posts', (req, res) => {
+router.get('/posts', async (req, res) => {
     const { username } = req.params;
     const userPosts = [];
-    if (username) {
-        posts.findAll({ where: { username } })
-            .then(data => {
-                res.status(200).send(data);
-            })
-            .catch(err => {
-                res.status(500).send({
-                    message:
-                        err.message || "Some error occurred while retrieving tutorials."
-                });
-            });
-    } else {
-        res.sendStatus(404);
+    try {
+        const postList = await posts.findAll({ where: { username } });
+        res.status(200).send(postList);
+    } catch (err) {
+        res.status(500).send({
+            err,
+            msg: "some internal err"
+        })
     }
 })
 
 
-router.post('/create', redirectLogin, (req, res) => {
+router.post('/create', redirectLogin, async (req, res) => {
     const { username } = req.params;
     const postTitleArray = req.body.title.split(' ');
     let len = postTitleArray.length;
@@ -61,36 +64,47 @@ router.post('/create', redirectLogin, (req, res) => {
     obj.userId = req.session.userId;
     obj.username = username;
     // posts.push(obj);
-    posts.create(obj)
-        .then(post => {
-            res.status(201).send(post);
-        })
-        .catch(err => {
+    try {
+
+        const newPost = await posts.create(obj)
+        if (newPost) {
+            res.send(newPost);
+        } else {
             res.status(500).send({
-                message:
-                    err.message || "Some error occurred while creating the Tutorial."
-            });
-        });
+                msg: "some internal err"
+            })
+        }
+    } catch (err) {
+        res.status(500).send({
+            err,
+            msg: "some internal err"
+        })
+    }
 })
 
 
-router.get('/:title', (req, res) => {
+router.get('/:title', async (req, res) => {
     const { username, title } = req.params;
     if (title && username) {
-        posts.findOne({
-            where: { [Op.and]: [{ title, username }] } //and operator
-        })
-            .then(post => {
-                res.status(200).send(post);
+        try {
+            const foundPost = await posts.findOne({
+                where: { [Op.and]: [{ title, username }] } //and operator
             })
-            .catch(err => {
-                res.status(500).send({
-                    message:
-                        err.message || "Some error occurred while creating the Tutorial."
-                });
+
+            if (foundPost) {
+                res.send(foundPost);
+            } else {
+                res.status(404).send("not found")
+            }
+
+        } catch (err) {
+            res.status(500).send({
+                err,
+                msg: "some internal error"
             });
+        }
     } else {
-        res.status(404).send('no such post found');
+        res.sendStatus(500);
     }
 })
 

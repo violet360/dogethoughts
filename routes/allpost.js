@@ -9,19 +9,18 @@ router.use((req, res, next) => {
 });
 
 
-router.get('', (req, res) => {
-    database.sequelize.query('SELECT * FROM posts', {
-        type: database.sequelize.QueryTypes.SELECT
-    })
-        .then((data) => {
-            res.status(200).send(data);
+router.get('', async (req, res) => {
+    try {
+        const allPosts = await database.sequelize.query('SELECT * FROM posts', {
+            type: database.sequelize.QueryTypes.SELECT
         })
-        .catch(err => {
-            res.status(500).send({
-                message:
-                    err.message || "Some error occurred while creating the Tutorial."
-            })
+        res.send(allPosts);
+    } catch (err) {
+        res.status(500).send({
+            err,
+            msg: "some internal err"
         })
+    }
 })
 
 module.exports = router;
