@@ -13,11 +13,14 @@ app.use((req, res, next) => {
     next();
 });
 
+
+const { database } = require("./models/modelExport.js");
+database.sequelize.sync();
+
 app.use('/posts', allPostRoute);
 app.use('/:username', postRoute);
-
 app.use('/user', userRoute);
 
 
-app.listen(3000, () => console.log('server is running on port 3000'));
+app.listen(8000, () => console.log('server is running on port 8000'));
 

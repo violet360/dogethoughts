@@ -1,6 +1,6 @@
 const { Router } = require('express');
 const router = Router();
-const { users } = require('../models/models');
+const { database } = require('../models/modelExport');
 var crypto = require('crypto');
 const {
     v1: uuidv1,
@@ -8,16 +8,26 @@ const {
 } = require('uuid');
 
 
+const users = database.users;
+const Op = database.Sequelize.Op;
+
+
 router.post('/login', (req, res) => {
     let obj = req.body;
-    const user = users.find(o => o.username === obj.username && o.password === crypto.createHash('sha256').update(obj.password).digest('hex'));
-    req.session.userId = user.userId;
-    if (user) {
-        req.session.userId = user.userId;
-        res.sendStatus(200);
-    } else {
-        res.sendStatus(403);
-    }
+    obj.password = crypto.createHash('sha256').update(obj.password).digest('hex');
+    users.findOne({
+        where: { [Op.and]: [obj] } //and operator
+    })
+        .then(user => {
+            req.session.userId = user.userId;
+            res.status(200).send(user);
+        })
+        .catch(err => {
+            res.status(500).send({
+                message:
+                    err.message || "Some error occurred while creating the Tutorial."
+            });
+        });
 })
 
 
@@ -26,8 +36,17 @@ router.post('/signup', (req, res) => {
     let obj = req.body;
     obj.password = crypto.createHash('sha256').update(obj.password).digest('hex');
     obj.userId = uuidv4();
-    res.status(200).send("login to your account");
-    users.push(obj);
+    const user = obj;
+    users.create(user)
+        .then(data => {
+            res.send(data);
+        })
+        .catch(err => {
+            res.status(500).send({
+                message:
+                    err.message || "Some error occurred while creating the Tutorial."
+            });
+        });
 })
 
 router.post('/logout', (req, res) => {

@@ -6,6 +6,25 @@
     "express-session": "^1.17.1",
     "mysql2": "^2.2.5",
     "redis": "^3.1.1",
+    "sequelize": "^6.6.2",
     "uuid": "^8.3.2"
-  }
+  },
+  "name": "session-management-auth",
+  "description": "CRUD operations (sequelize integration soon to come) session based authentication",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/violet360/node-blog.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/violet360/node-blog/issues"
+  },
+  "homepage": "https://github.com/violet360/node-blog#readme"
 }

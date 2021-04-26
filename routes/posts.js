@@ -1,25 +1,18 @@
 const { Router } = require('express');
-const { posts, users } = require('../models/models');
 const router = Router({ mergeParams: true }); //to get params from parent route
 const { redirectLogin } = require('../middlewares/authenticate');
+const { database } = require('../models/modelExport');
+const { users, posts } = database;
+const Op = database.Sequelize.Op;
 
-router.get('', (req, res) => {
+router.get('', async (req, res) => {
     const { username } = req.params;
-    let userObj = users.find(o => o.username === username);
-    let userPosts = [];
-    if (userObj) {
-        let finalObj = {};
-        finalObj.about = userObj;
-        for (let post of posts) {
-            if (post.username === username) {
-                userPosts.push(post);
-            }
-        }
-        finalObj.posts = userPosts;
-        res.status(200).send(finalObj);
-    } else {
-        res.sendStatus(404);
-    }
+    let userObj = {};
+    const user = await users.findOne({ where: { username } });
+    const userPosts = await posts.findAll({ where: { username } });
+    userObj.about = user;
+    userObj.posts = userPosts;
+    res.status(200).send(userObj);
 })
 
 
@@ -27,14 +20,16 @@ router.get('/posts', (req, res) => {
     const { username } = req.params;
     const userPosts = [];
     if (username) {
-        let obj = users.find(o => o.username === username);
-        let { userId } = obj;
-        for (let post of posts) {
-            if (post.userId === userId) {
-                userPosts.push(post);
-            }
-        }
-        res.status(200).send(userPosts);
+        posts.findAll({ where: { username } })
+            .then(data => {
+                res.status(200).send(data);
+            })
+            .catch(err => {
+                res.status(500).send({
+                    message:
+                        err.message || "Some error occurred while retrieving tutorials."
+                });
+            });
     } else {
         res.sendStatus(404);
     }
@@ -65,50 +60,86 @@ router.post('/create', redirectLogin, (req, res) => {
     obj.title = postTitleProcessed;
     obj.userId = req.session.userId;
     obj.username = username;
-    posts.push(obj);
-    res.status(200).send(obj);
+    // posts.push(obj);
+    posts.create(obj)
+        .then(post => {
+            res.status(201).send(post);
+        })
+        .catch(err => {
+            res.status(500).send({
+                message:
+                    err.message || "Some error occurred while creating the Tutorial."
+            });
+        });
 })
 
 
 router.get('/:title', (req, res) => {
     const { username, title } = req.params;
     if (title && username) {
-        const obj = posts.find(o => ((o.title === title) && (o.username === username)));
-        res.status(200).json(obj);
+        posts.findOne({
+            where: { [Op.and]: [{ title, username }] } //and operator
+        })
+            .then(post => {
+                res.status(200).send(post);
+            })
+            .catch(err => {
+                res.status(500).send({
+                    message:
+                        err.message || "Some error occurred while creating the Tutorial."
+                });
+            });
     } else {
         res.status(404).send('no such post found');
     }
 })
 
 
-router.put('/:title/update', redirectLogin, (req, res) => {
+router.put('/:title/update', redirectLogin, async (req, res) => {
     const { userId } = req.session;
     const { username, title } = req.params;
-    const userObj = users.find(o => ((o.userId === userId) && (o.username === username)))
-    const postIndex = posts.findIndex(o => ((o.username === username) && (o.title === title)));
-    if (userObj && postIndex >= 0) {
-        let updatedPost = req.body;
-        posts[postIndex].title = updatedPost.title;
-        posts[postIndex].content = updatedPost.content;
-        res.sendStatus(200);
-    } else if (userObj == undefined && postIndex >= 0) {
+    const userObj = await users.findOne({ where: { [Op.and]: [{ userId, username }] } });
+    const postObj = await posts.findOne({ where: { [Op.and]: [{ title, username }] } });
+    if (userObj && postObj) {
+        const postTitleArray = req.body.title.split(' ');
+        let len = postTitleArray.length;
+        let titleArray = [];
+        for (let i = 0; i < len; ++i) {
+            if (postTitleArray[i].length > 0) {
+                titleArray.push(postTitleArray[i]);
+            }
+        }
+
+        let postTitleProcessed = '';
+        let len1 = titleArray.length;
+        for (let i = 0; i < len1; ++i) {
+            postTitleProcessed += titleArray[i];
+            if (i < len1 - 1) {
+                postTitleProcessed += '-';
+            }
+        }
+        postObj.title = postTitleProcessed;
+        postObj.content = req.body.content;
+        postObj.save();
+        res.status(200).send(postObj);
+    } else if (userObj === null && postObj) {
         res.sendStatus(403);
     } else {
         res.sendStatus(404);
     }
-})
+});
 
 
 
-router.delete('/:title/delete', redirectLogin, (req, res) => {
+router.delete('/:title/delete', redirectLogin, async (req, res) => {
     const { userId } = req.session;
     const { username, title } = req.params;
-    const userObj = users.find(o => ((o.userId === userId) && (o.username === username)))
-    const postIndex = posts.findIndex(o => ((o.username === username) && (o.title === title)));
-    if (userObj && postIndex >= 0) {
-        posts.splice(postIndex, 1);
+    const userObj = await users.findOne({ where: { [Op.and]: [{ userId, username }] } });
+    const postObj = await posts.findOne({ where: { [Op.and]: [{ title, username }] } });
+    if (userObj && postObj) {
+        const post = await posts.destroy({ where: { [Op.and]: [{ title, username }] } });
         res.sendStatus(200);
-    } else if (userObj == undefined && postIndex >= 0) {
+    } else if (userObj === null && postObj) {
         res.sendStatus(403);
     } else {
         res.sendStatus(404);
