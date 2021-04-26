@@ -6,6 +6,7 @@
 
 | API        | method        | description | auth required |
 | ---------- |:-------------:| -----:|-------------------:|
+| /posts | GET      |   fetched all posts in the database | false |
 |  /:username  | GET | fetches the profile description of the username | false |
 | /:username/posts   | GET      |   fetches all the posts by the username | false |
 | /:username/create | POST      |   creates a post | true |
