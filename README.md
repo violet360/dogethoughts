@@ -4,7 +4,7 @@
 
 ##### CRUD operations
 
-| API                      | method |                                     description | auth required |
+| API endpoint             | method |                                     description | auth required |
 |--------------------------|:------:|------------------------------------------------:|--------------:|
 | /posts                   |  GET   |               fetched all posts in the database |         false |
 | /:username               |  GET   | fetches the profile description of the username |         false |
@@ -17,7 +17,7 @@
 
 ##### AUTH operations (session based authentication)
 
-| API          | method |                              description | auth required |
+| API endpoint | method |                              description | auth required |
 |--------------|:------:|-----------------------------------------:|--------------:|
 | /user/signup |  POST  |             adds profile to the database |         false |
 | /user/login  |  POST  | logs the user in and creates the session |         false |
