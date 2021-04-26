@@ -1,6 +1,4 @@
 # node-blog
-CRUD operations (sequelize integration soon to come)
-session based authentication
 
 ### API routes:
 
@@ -16,7 +14,8 @@ session based authentication
 | /:username/:title/delete | DELETE      |   deletes a post with the title name | true |
 
 
-##### AUTH operations
+##### AUTH operations (session based authentication)
+
 | API        | method        | description | auth required |
 | ---------- |:-------------:| -----:|-------------------:|
 |  /user/signup | POST | adds profile to the database | false |
